@@ -19,6 +19,7 @@ package com.google.samples.propertyanimation
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -111,6 +112,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scaler() {
+        // The value 4f stands for the scale multiplier. The 4f means that the object will scale to
+        // 4x its own size.
+        val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 4f)
+        val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4f)
+
+        val animator = ObjectAnimator.ofPropertyValuesHolder(
+            star,
+            scaleX,
+            scaleY
+        )
+        animator.disableViewDuringAnimation(scaleButton)
+
+        animator.repeatCount = 1
+        animator.repeatMode = ObjectAnimator.REVERSE
+
+        animator.start()
+
     }
 
     private fun fader() {
