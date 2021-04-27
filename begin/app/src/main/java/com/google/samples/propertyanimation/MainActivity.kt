@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
          * methods of this listener can simply subclass this adapter class instead of implementing
          * the interface directly.
          */
-        disableViewDuringAnimation(rotateButton, animator)
+        animator.disableViewDuringAnimation(rotateButton)
 
         animator.start()
 
@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         )
         animator.repeatCount = 1
         animator.repeatMode = ObjectAnimator.REVERSE
-        disableViewDuringAnimation(translateButton, animator)
+        animator.disableViewDuringAnimation(translateButton)
         animator.start()
     }
 
@@ -122,8 +122,8 @@ class MainActivity : AppCompatActivity() {
     private fun shower() {
     }
 
-    private fun disableViewDuringAnimation(view: View, animator: Animator) {
-        animator.addListener(object : AnimatorListenerAdapter() {
+    private fun Animator.disableViewDuringAnimation(view: View) {
+        addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator?) {
                 view.isEnabled = false
             }
