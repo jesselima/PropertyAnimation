@@ -16,8 +16,12 @@
 
 package com.google.samples.propertyanimation
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 
@@ -70,6 +74,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun rotater() {
+        val animator = ObjectAnimator.ofFloat(
+            star,
+            View.ROTATION,      // The view property ro animate over time
+        -360f,          // Start value
+            0f                 // End value
+        )
+        // The default animation duration in Android is 300ms. How ever we can change it:
+        animator.duration = 1000
+        //animator.startDelay = 1500
+
+        // Fixing Genk behaviour using cal backs. There are call backs for ending, pausing,
+        // resuming, repeating
+        /**
+         * This adapter class provides empty implementations of the methods from
+         * Animator.AnimatorListener. Any custom listener that cares only about a subset of the
+         * methods of this listener can simply subclass this adapter class instead of implementing
+         * the interface directly.
+         */
+        animator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animation: Animator?) {
+                rotateButton.isEnabled = false
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                rotateButton.isEnabled = true
+            }
+        })
+
+        animator.start()
+
     }
 
     private fun translater() {
