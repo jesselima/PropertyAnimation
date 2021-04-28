@@ -20,9 +20,11 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.RequiresApi
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -126,7 +128,21 @@ class MainActivity : AppCompatActivity() {
         animator.start()
     }
 
+    /**
+     * Requires minimum API 21
+     */
+    @RequiresApi(value = 21)
     private fun colorizer() {
+        val animator = ObjectAnimator.ofArgb(
+            star.parent,
+            "backgroundColor",
+            Color.BLACK, Color.RED, Color.BLUE
+        )
+        animator.repeatCount = 1
+        animator.duration = 2000
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.disableViewDuringAnimation(colorizeButton)
+        animator.start()
     }
 
     private fun shower() {
