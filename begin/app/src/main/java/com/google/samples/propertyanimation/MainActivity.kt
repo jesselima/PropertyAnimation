@@ -63,40 +63,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun rotater() {
-        val animator = ObjectAnimator.ofFloat(
-            star,
-            View.ROTATION,      // The view property ro animate over time
-        -360f,          // Start value
-            0f                 // End value
-        )
-        // The default animation duration in Android is 300ms. How ever we can change it:
-        animator.duration = 1000
-        //animator.startDelay = 1500
-
-        // Fixing Genk behaviour using cal backs. There are call backs for ending, pausing,
-        // resuming, repeating
-        /**
-         * This adapter class provides empty implementations of the methods from
-         * Animator.AnimatorListener. Any custom listener that cares only about a subset of the
-         * methods of this listener can simply subclass this adapter class instead of implementing
-         * the interface directly.
-         */
-        animator.disableViewDuringAnimation(rotateButton)
-
-        animator.start()
-
+        with(ObjectAnimator.ofFloat(star,View.ROTATION,    -360f, 0f)) {
+            runAnimationWithDefaultProperties(
+                view = rotateButton,
+                animatorDuration = AnimatorDuration.LONG
+            )
+        }
     }
 
     private fun translater() {
-        val animator = ObjectAnimator.ofFloat(
-            star,
-            View.TRANSLATION_X,
-            200f
-        )
-        animator.repeatCount = 1
-        animator.repeatMode = ObjectAnimator.REVERSE
-        animator.disableViewDuringAnimation(translateButton)
-        animator.start()
+       with(ObjectAnimator.ofFloat(star,View.TRANSLATION_X,200f)) {
+           runAnimationWithDefaultProperties(translateButton)
+       }
     }
 
     private fun scaler() {
@@ -104,28 +82,18 @@ class MainActivity : AppCompatActivity() {
         // 4x its own size.
         val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 4f)
         val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4f)
-
-        val animator = ObjectAnimator.ofPropertyValuesHolder(
-            star,
-            scaleX,
-            scaleY
-        )
-        animator.disableViewDuringAnimation(scaleButton)
-
-        animator.repeatCount = 1
-        animator.repeatMode = ObjectAnimator.REVERSE
-
-        animator.start()
-
+        with(ObjectAnimator.ofPropertyValuesHolder(star,scaleX,scaleY)) {
+            runAnimationWithDefaultProperties(scaleButton)
+        }
     }
 
     private fun fader() {
-        val animator = ObjectAnimator.ofFloat(star, View.ALPHA, 0f)
-        animator.disableViewDuringAnimation(fadeButton)
-        animator.repeatCount = 1
-        animator.duration = 1000
-        animator.repeatMode = ObjectAnimator.REVERSE
-        animator.start()
+        with(ObjectAnimator.ofFloat(star, View.ALPHA, 0f)) {
+            runAnimationWithDefaultProperties(
+                view = colorizeButton,
+                animatorDuration = AnimatorDuration.LONG
+            )
+        }
     }
 
     /**
@@ -138,17 +106,22 @@ class MainActivity : AppCompatActivity() {
             "backgroundColor",
             Color.BLACK, Color.RED, Color.BLUE
         )
-        animator.repeatCount = 1
-        animator.duration = 2000
-        animator.repeatMode = ObjectAnimator.REVERSE
-        animator.disableViewDuringAnimation(colorizeButton)
-        animator.start()
+        animator.runAnimationWithDefaultProperties(
+            view = colorizeButton,
+            animatorDuration = AnimatorDuration.EXTRA
+        )
     }
 
     private fun shower() {
     }
 
     private fun Animator.disableViewDuringAnimation(view: View) {
+        /**
+         * This adapter class provides empty implementations of the methods from
+         * Animator.AnimatorListener. Any custom listener that cares only about a subset of the
+         * methods of this listener can simply subclass this adapter class instead of implementing
+         * the interface directly.
+         */
         addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator?) {
                 view.isEnabled = false
@@ -160,4 +133,23 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun ObjectAnimator.runAnimationWithDefaultProperties(
+        view: View,
+        customRepeatCount: Int = 1,
+        customRepeatMode: Int = ObjectAnimator.REVERSE,
+        animatorDuration: AnimatorDuration = AnimatorDuration.DEFAULT
+    ) {
+        disableViewDuringAnimation(view)
+        duration = animatorDuration.timeInMillis
+        repeatCount = customRepeatCount
+        repeatMode = customRepeatMode
+        start()
+    }
+}
+
+enum class AnimatorDuration(val timeInMillis: Long) {
+    DEFAULT(300),
+    MEDIUM(500),
+    LONG(1000),
+    EXTRA(2000)
 }
