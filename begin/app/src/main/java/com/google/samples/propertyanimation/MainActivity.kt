@@ -18,13 +18,22 @@ package com.google.samples.propertyanimation
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AnimationSet
+import android.view.animation.LinearInterpolator
+import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.animation.addListener
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -99,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * Requires minimum API 21
      */
-    @RequiresApi(value = 21)
+    @RequiresApi(value = Build.VERSION_CODES.LOLLIPOP)
     private fun colorizer() {
         val animator = ObjectAnimator.ofArgb(
             star.parent,
@@ -113,6 +122,80 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shower() {
+        // Get the view parent container
+        val container = star.parent as ViewGroup
+
+        // Gets the container height
+        val containerHeight = container.height
+        val containerWidth = container.width
+        var startHeight = star.height.toFloat()
+        var startWidth = star.width.toFloat()
+
+        // Creates a new star
+        val newStar = AppCompatImageView(this).apply {
+            setImageResource(R.drawable.ic_star)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        // Add the created star do the container view
+        container.addView(newStar)
+
+        // Set the size of the start do be some random number
+        newStar.scaleX = Math.random().toFloat() * 1.5f + 1f
+        newStar.scaleY = newStar.scaleX
+        startHeight = newStar.scaleX
+        startWidth = newStar.scaleY
+
+        // Position the star
+        newStar.translationX = Math.random().toFloat() * containerWidth - startWidth / 2
+
+        // Setting the animation
+
+        // Falling animation
+        val mover = ObjectAnimator.ofFloat(
+            newStar,
+            View.TRANSLATION_Y,
+            -startHeight,
+            containerHeight + startHeight
+        )
+
+        // Set the interpolator in the falling animation
+        mover.interpolator = AccelerateInterpolator(1f)
+
+        // Set the rotation animation
+        val rotator = ObjectAnimator.ofFloat(
+            newStar,
+            View.ROTATION,
+            (Math.random() * 1080).toFloat()
+        )
+        // Set the rotation speed to linear (constant speed as the star falls.
+        rotator.interpolator = LinearInterpolator()
+
+        /**
+         * AnimationSet - Put the animation together.
+         * With AnimationSet you can run animation in parallel sequentially.
+         * AnimationSet can also contain another AnimationSet. So you can create very complex
+         * hierarchical choreography by grouping animators together into these sets
+         */
+
+        val animationSet = AnimatorSet()
+        animationSet.playTogether(mover, rotator)
+
+        // Set variable duration
+        animationSet.duration = (Math.random() * 1500 + 500).toLong()
+
+        // Once the animation is out of the container it should be removed from it.
+        animationSet.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                container.removeView(newStar)
+            }
+        })
+
+        // Run the fall and rotate animation.
+        animationSet.start()
     }
 
     private fun Animator.disableViewDuringAnimation(view: View) {
